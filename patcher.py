@@ -47,9 +47,29 @@ def patch():
         file_name = os.path.join(source, file)
         shutil.move(file_name, destination)
 
+def cleanup():
+    os.remove('temp.zip')
+    os.rmdir('patch')
+
 if __name__ == "__main__":
-    file_id = '1L6K6tVsXpFtPxUSgLTpxtNXVfN24Ym4l'
-    destination = os.getcwd() + '\\temp.zip'
-    download_file_from_google_drive(file_id, destination)
-    unzip_patch()
-    patch()
+    try:
+        file_id = '1L6K6tVsXpFtPxUSgLTpxtNXVfN24Ym4l'
+        destination = os.getcwd() + '\\temp.zip'
+        print("Downloading patch, please wait...")
+        download_file_from_google_drive(file_id, destination)
+    except BaseException:
+        print("Error: could not download file. Please check with leibylucw.")
+
+    try:
+        print("Patching Hearthstone, please wait...")
+        unzip_patch()
+        patch()
+    except BaseException:
+        print("Could not patch your game. Please ask leibylucw.")
+
+    print("Done!")
+
+    try:
+        cleanup()
+    except BaseException:
+        print("Could not remove temporary files, but your game should still be patched.")
