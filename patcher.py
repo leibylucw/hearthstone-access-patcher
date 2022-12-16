@@ -41,15 +41,11 @@ def unzip_patch():
 def patch():
     source = os.getcwd() + '\\patch'
     destination = os.getcwd()
-    files = os.listdir(source)
-
-    for file in files:
-        file_name = os.path.join(source, file)
-        shutil.move(file_name, destination)
+    shutil.copytree(source, destination, copy_function=shutil.copy)
 
 def cleanup():
     os.remove('temp.zip')
-    os.rmdir('patch')
+    os.rmtree('patch')
 
 if __name__ == "__main__":
     try:
@@ -67,9 +63,11 @@ if __name__ == "__main__":
     except BaseException:
         print("Could not patch your game. Please ask leibylucw.")
 
-    print("Done!")
-
     try:
         cleanup()
     except BaseException:
-        print("Could not remove temporary files, but your game should still be patched.")
+        print("Could not remove temporary files.")
+
+    print("Exiting the patcher")
+    print("Press enter to continue...")
+    input()
