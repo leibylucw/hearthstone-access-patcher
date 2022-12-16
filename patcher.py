@@ -2,6 +2,7 @@
 
 import os
 import requests
+import zipfile
 
 def download_file_from_google_drive(id, destination):
     URL = "https://docs.google.com/uc?export=download"
@@ -32,7 +33,12 @@ def save_response_content(response, destination):
             if chunk: # filter out keep-alive new chunks
                 f.write(chunk)
 
+def unzip_patch():
+    with zipfile.ZipFile(os.getcwd() + '\\temp.zip', 'r') as zipped_patch:
+        zipped_patch.extractall(os.getcwd())
+
 if __name__ == "__main__":
     file_id = '1L6K6tVsXpFtPxUSgLTpxtNXVfN24Ym4l'
     destination = os.getcwd() + '\\temp.zip'
     download_file_from_google_drive(file_id, destination)
+    unzip_patch()
