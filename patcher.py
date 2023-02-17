@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     while not os.path.exists(hearthstone_dir):
         print("Your Hearthstone installation could not be located.")
-        print("Please enter the path where you have Hearthstone installed: ", sep="")
+        print("Please enter the path where you have Hearthstone installed: ")
         hearthstone_dir = input()
 
     print(f"Patch will be installed to {hearthstone_dir}")
