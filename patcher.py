@@ -108,7 +108,10 @@ if __name__ == "__main__":
     try:
         cleanup(hearthstone_dir)
     except BaseException:
-        print("Could not remove temporary files.")
+        print("Cleanup Patch Error: Could not remove leftover patch files.")
+        print("Here are some potential causes:")
+        print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
+        print("2. Unlikely, but another program could be trying to modify the Hearthstone installation folder.")
 
     print("Press enter to exit the patcher.")
     input()
