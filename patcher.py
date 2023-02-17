@@ -89,7 +89,10 @@ if __name__ == "__main__":
         destination = hearthstone_dir + '\\temp.zip'
         download_file_from_google_drive(file_id, destination)
     except BaseException:
-        print("Error: could not download file. Please check with leibylucw.")
+        print("Error: could not download patch.")
+        print("Here are some potential causes:")
+        print("1. There may be something in your network that is interfering with the download.")
+        print("2. Google Drive may have limited download hits on the patch. Where the patch is stored online will need to be revisited by the HearthstoneAccess development team.")
 
     print("Patching Hearthstone, please wait...")
     try:
