@@ -100,7 +100,10 @@ if __name__ == "__main__":
         patch(hearthstone_dir)
         print("Successfully patched!")
     except BaseException:
-        print("Could not patch your game. Please ask leibylucw.")
+        print("Unzip Patch Error: Could not patch your game.")
+        print("Here are some potential causes:")
+        print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
+        print("2. Unlikely, but you may not have enough space on your disk drive.")
 
     try:
         cleanup(hearthstone_dir)
