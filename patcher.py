@@ -40,14 +40,14 @@ def save_response_content(response, destination):
                 f.write(chunk)
 
 
-def unzip_patch(cwd):
-    with zipfile.ZipFile(os.path.join(cwd, 'temp.zip'), 'r') as zipped_patch:
-        zipped_patch.extractall(cwd)
+def unzip_patch(hearthstone_dir):
+    with zipfile.ZipFile(os.path.join(hearthstone_dir, 'temp.zip'), 'r') as zipped_patch:
+        zipped_patch.extractall(hearthstone_dir)
 
 
-def patch(cwd):
-    source = os.path.join(cwd, 'patch')
-    destination = cwd
+def patch(hearthstone_dir):
+    source = os.path.join(hearthstone_dir, 'patch')
+    destination = hearthstone_dir
 
     # Taken from
     # https://stackoverflow.com/questions/7419665/python-move-and-overwrite-files-and-folders
@@ -66,33 +66,41 @@ def patch(cwd):
             shutil.move(src_file, dst_dir)
 
 
-def cleanup():
-    os.remove('temp.zip')
-    shutil.rmtree('patch')
+def cleanup(hearthstone_dir):
+    os.remove(hearthstone_dir + '\\temp.zip')
+    shutil.rmtree(hearthstone_dir + '\\patch')
 
 
 if __name__ == "__main__":
     ctypes.windll.kernel32.SetConsoleTitleW("Some Title")
+
+    hearthstone_dir = "C:\\Program Files (x86)\\Hearthstone"
+
+    while not os.path.exists(hearthstone_dir):
+        print("Your Hearthstone installation could not be located.")
+        print("Please enter the path where you have Hearthstone installed: ", sep="")
+        hearthstone_dir = input()
+
+    print(f"Patch will be installed to {hearthstone_dir}")
     print("Downloading patch, please wait...")
 
     try:
         file_id = '1L6K6tVsXpFtPxUSgLTpxtNXVfN24Ym4l'
-        cwd = os.getcwd()
-        destination = cwd + '\\temp.zip'
+        destination = hearthstone_dir + '\\temp.zip'
         download_file_from_google_drive(file_id, destination)
     except BaseException:
         print("Error: could not download file. Please check with leibylucw.")
 
     print("Patching Hearthstone, please wait...")
     try:
-        unzip_patch(cwd)
-        patch(cwd)
+        unzip_patch(hearthstone_dir)
+        patch(hearthstone_dir)
         print("Successfully patched!")
     except BaseException:
         print("Could not patch your game. Please ask leibylucw.")
 
     try:
-        cleanup()
+        cleanup(hearthstone_dir)
     except BaseException:
         print("Could not remove temporary files.")
 
