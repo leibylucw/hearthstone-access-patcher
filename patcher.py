@@ -1,6 +1,7 @@
 # Reference:
 # https://stackoverflow.com/questions/38511444/python-download-files-from-google-drive-using-url
 
+import ctypes
 import os
 import requests
 import shutil
@@ -71,6 +72,7 @@ def cleanup():
 
 
 if __name__ == "__main__":
+    ctypes.windll.kernel32.SetConsoleTitleW("Some Title")
     print("Downloading patch, please wait...")
 
     try:
