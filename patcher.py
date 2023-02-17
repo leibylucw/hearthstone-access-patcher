@@ -89,7 +89,10 @@ if __name__ == "__main__":
         destination = hearthstone_dir + '\\temp.zip'
         download_file_from_google_drive(file_id, destination)
     except BaseException:
-        print("Error: could not download file. Please check with leibylucw.")
+        print("Patch Download Error: could not download patch.")
+        print("Here are some potential causes:")
+        print("1. There may be something in your network that is interfering with the download.")
+        print("2. Google Drive may have limited download hits on the patch. Where the patch is stored online will need to be revisited by the HearthstoneAccess development team.")
 
     print("Patching Hearthstone, please wait...")
     try:
@@ -97,12 +100,18 @@ if __name__ == "__main__":
         patch(hearthstone_dir)
         print("Successfully patched!")
     except BaseException:
-        print("Could not patch your game. Please ask leibylucw.")
+        print("Unzip Patch Error: Could not patch your game.")
+        print("Here are some potential causes:")
+        print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
+        print("2. Unlikely, but you may not have enough space on your disk drive.")
 
     try:
         cleanup(hearthstone_dir)
     except BaseException:
-        print("Could not remove temporary files.")
+        print("Cleanup Patch Error: Could not remove leftover patch files.")
+        print("Here are some potential causes:")
+        print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
+        print("2. Unlikely, but another program could be trying to modify the Hearthstone installation folder.")
 
     print("Press enter to exit the patcher.")
     input()
