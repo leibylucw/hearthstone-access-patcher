@@ -72,7 +72,7 @@ def cleanup(hearthstone_dir):
 
 
 if __name__ == "__main__":
-    ctypes.windll.kernel32.SetConsoleTitleW("Some Title")
+    ctypes.windll.kernel32.SetConsoleTitleW("HearthstoneAccess Beta Patcher")
 
     hearthstone_dir = "C:\\Program Files (x86)\\Hearthstone"
 
@@ -125,7 +125,8 @@ if __name__ == "__main__":
         print("Check your desktop for the patch's readme.")
         print("It is called prepatch_readme.txt")
     except BaseException:
-        print("Make Readme Available Error: Could not move the patch readme to your desktop.")
+        print(
+            "Make Readme Available Error: Could not move the patch readme to your desktop.")
         print("Here are some potential causes:")
         print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
         print("2. Unlikely, but another program could be trying to modify the Hearthstone installation folder.")
