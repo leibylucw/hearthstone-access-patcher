@@ -113,5 +113,23 @@ if __name__ == "__main__":
         print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
         print("2. Unlikely, but another program could be trying to modify the Hearthstone installation folder.")
 
+    try:
+        patch_readme_path = os.path.expanduser('~') + '\\Desktop'
+        patch_readme_name = '\\prepatch_readme.txt'
+        patch_readme_file = patch_readme_path + patch_readme_name
+
+        if not os.path.exists(patch_readme_file):
+            shutil.move(hearthstone_dir + patch_readme_name, patch_readme_file)
+        os.remove(hearthstone_dir + patch_readme_name)
+
+        print("Check your desktop for the patch's readme.")
+        print("It is called prepatch_readme.txt")
+    except BaseException:
+        print("Make Readme Available Error: Could not move the patch readme to your desktop.")
+        print("Here are some potential causes:")
+        print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
+        print("2. Unlikely, but another program could be trying to modify the Hearthstone installation folder.")
+        print("It should still be available in the Hearthstone installation directory.")
+
     print("Press enter to exit the patcher.")
     input()
