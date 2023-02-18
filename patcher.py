@@ -5,6 +5,7 @@ import ctypes
 import os
 import requests
 import shutil
+import subprocess
 import zipfile
 
 
@@ -71,15 +72,33 @@ def cleanup(hearthstone_dir):
     shutil.rmtree(hearthstone_dir + '\\patch')
 
 
+def get_hearthstone_dir_from_environment():
+    process = subprocess.run("powershell.exe [System.Environment]::GetEnvironmentVariable('HEARTHSTONE_HOME', 'User')", capture_output=True)
+    hearthstone_dir = process.stdout.decode()
+    return hearthstone_dir
+
+
+def get_hearthstone_dir_from_user():
+    hearthstone_dir = get_hearthstone_dir_from_environment()
+
+    while not os.path.exists(hearthstone_dir):
+        print("The patcher couldn't find your Hearthstone installation folder.")
+        hearthstone_dir = input("Please copy/paste or enter the path where you have the game installed and press enter:")
+
+    process = subprocess.run(f"powershell.exe [System.Environment]::SetEnvironmentVariable('HEARTHSTONE_HOME', '{hearthstone_dir}', 'User')", capture_output=True)
+
+    return hearthstone_dir
+
+
 if __name__ == "__main__":
     ctypes.windll.kernel32.SetConsoleTitleW("HearthstoneAccess Beta Patcher")
 
-    hearthstone_dir = "C:\\Program Files (x86)\\Hearthstone"
+    hearthstone_dir = "C:\\Program Files (x86)\\Hearthstodne"
 
-    while not os.path.exists(hearthstone_dir):
-        print("Your Hearthstone installation could not be located.")
-        print("Please enter the path where you have Hearthstone installed: ")
-        hearthstone_dir = input()
+    if not os.path.exists(hearthstone_dir) and not bool(get_hearthstone_dir_from_environment()):
+        hearthstone_dir = get_hearthstone_dir_from_user()
+    else:
+        hearthstone_dir = get_hearthstone_dir_from_environment().strip()
 
     print(f"Patch will be installed to {hearthstone_dir}")
     print("Downloading patch, please wait...")
@@ -125,9 +144,10 @@ if __name__ == "__main__":
         patch_readme_name = '\\prepatch_readme.txt'
         patch_readme_file = patch_readme_path + patch_readme_name
 
-        if not os.path.exists(patch_readme_file):
-            shutil.move(hearthstone_dir + patch_readme_name, patch_readme_file)
-        os.remove(hearthstone_dir + patch_readme_name)
+        if os.path.exists(patch_readme_file):
+            os.remove(patch_readme_file)
+
+        shutil.move(hearthstone_dir + patch_readme_name, patch_readme_file)
 
         print("Check your desktop for the patch's readme.")
         print("It is called prepatch_readme.txt")
