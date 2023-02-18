@@ -139,7 +139,7 @@ def move_patch_readme(hearthstone_dir):
 def exit_patcher():
     print("Press enter to exit...")
     input()
-    quit()
+    sys.exit()
 
 
 if __name__ == "__main__":
