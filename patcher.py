@@ -93,6 +93,8 @@ if __name__ == "__main__":
         print("Here are some potential causes:")
         print("1. There may be something in your network that is interfering with the download.")
         print("2. Google Drive may have limited download hits on the patch. Where the patch is stored online will need to be revisited by the HearthstoneAccess development team.")
+        print("Press enter to exit...")
+        input()
 
     print("Patching Hearthstone, please wait...")
     try:
@@ -102,8 +104,11 @@ if __name__ == "__main__":
     except BaseException:
         print("Unzip Patch Error: Could not patch your game.")
         print("Here are some potential causes:")
-        print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
-        print("2. Unlikely, but you may not have enough space on your disk drive.")
+        print("1. Make sure Hearthstone is not running while attempting to use the patcher.")
+        print("2. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
+        print("3. Unlikely, but you may not have enough space on your disk drive.")
+        print("Press enter to exit...")
+        input()
 
     try:
         cleanup(hearthstone_dir)
@@ -112,6 +117,8 @@ if __name__ == "__main__":
         print("Here are some potential causes:")
         print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
         print("2. Unlikely, but another program could be trying to modify the Hearthstone installation folder.")
+        print("Press enter to exit...")
+        input()
 
     try:
         patch_readme_path = os.path.expanduser('~') + '\\Desktop'
@@ -125,8 +132,7 @@ if __name__ == "__main__":
         print("Check your desktop for the patch's readme.")
         print("It is called prepatch_readme.txt")
     except BaseException:
-        print(
-            "Make Readme Available Error: Could not move the patch readme to your desktop.")
+            print("Make Readme Available Error: Could not move the patch readme to your desktop.")
         print("Here are some potential causes:")
         print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
         print("2. Unlikely, but another program could be trying to modify the Hearthstone installation folder.")
