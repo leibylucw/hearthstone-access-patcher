@@ -3,6 +3,7 @@ import os
 import requests
 import shutil
 import subprocess
+import sys
 import zipfile
 
 
@@ -50,8 +51,8 @@ def get_hearthstone_dir_from_user():
 
 # Reference:
 # https://stackoverflow.com/questions/38511444/python-download-files-from-google-drive-using-url
-def download_file_from_google_drive(id, destination):
-    URL = "https://docs.google.com/uc?export=download"
+def download_file(id, destination):
+    URL = "https://hearthstoneaccess.com/files/pre_patch.zip"
 
     session = requests.Session()
 
@@ -148,15 +149,16 @@ if __name__ == "__main__":
     hearthstone_dir = determine_patch_destination()
 
     print("Downloading patch, please wait...")
+    print("The HearthstoneAccess site takes a little while to serve downloads. Be patient.")
     try:
         file_id = '1L6K6tVsXpFtPxUSgLTpxtNXVfN24Ym4l'
         destination = hearthstone_dir + '\\temp.zip'
-        download_file_from_google_drive(file_id, destination)
+        download_file(file_id, destination)
     except BaseException:
         print("Patch Download Error: could not download patch.")
         print("Here are some potential causes:")
         print("1. There may be something in your network that is interfering with the download.")
-        print("2. Google Drive may have limited download hits on the patch. Where the patch is stored online will need to be revisited by the HearthstoneAccess development team.")
+        print("2. The HearthstoneAccess site could currently be down.")
         exit_patcher()
 
     print("Patching Hearthstone, please wait...")
