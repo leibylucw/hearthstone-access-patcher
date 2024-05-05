@@ -1,7 +1,7 @@
 line-length = 120
 output-format = "grouped"
 show-fixes = true
-target-version = "py312"
+target-version = "py311"
 
 [format]
 docstring-code-format = true
