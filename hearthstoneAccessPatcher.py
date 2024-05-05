@@ -45,7 +45,7 @@ def promptForHearthstoneDirectory():
 
 
 def downloadPatch(hearthstoneDirectory):
-	print(f'Downloading patch at {PATCH_URL}')
+	print(f'Downloading patch at {PATCH_URL}...', end='', flush=True)
 	patchDownloadDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 	patchDownloadFile = f'{patchDownloadDirectory}{PATCH_EXTENSION}'
 	response = requests.get(PATCH_URL, stream=True)
@@ -53,24 +53,24 @@ def downloadPatch(hearthstoneDirectory):
 		with open(patchDownloadFile, 'wb') as f:
 			for chunk in response.iter_content(chunk_size=8192):
 				f.write(chunk)
-		print('Patch Download complete')
+		print('done')
 	else:
-		print(f'Failed to download the patch: status code {response.status_code}')
+		print(f'\nFailed to download the patch: status code {response.status_code}')
 
 
 def unzip(hearthstoneDirectory):
-	print('Unzipping patch')
+	print('Unzipping patch...', end='', flush=True)
 	patchZipDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 	patchZipFile = f'{patchZipDirectory}{PATCH_EXTENSION}'
 
 	with zipfile.ZipFile(patchZipFile, 'r') as z:
 		z.extractall(hearthstoneDirectory)
 
-	print('Patch unzipped')
+	print('done')
 
 
 def applyPatch(hearthstoneDirectory):
-	print('Applying patch')
+	print('Applying patch...', end='', flush=True)
 	patchDirectory = os.path.join(hearthstoneDirectory, 'patch')
 
 	for directory in PATCH_DIRECTORIES:
@@ -86,7 +86,7 @@ def applyPatch(hearthstoneDirectory):
 			else:
 				shutil.copy2(sourceItem, destinationItem)
 
-	print('Patch applied successfully')
+	print('done')
 
 
 def moveREADMEToDesktop(hearthstoneDirectory):
@@ -105,13 +105,13 @@ def moveREADMEToDesktop(hearthstoneDirectory):
 
 
 def cleanUp(hearthstoneDirectory):
-	print('Removing temporary patch files')
+	print('Removing temporary patch files...', end='', flush=True)
 
 	shutil.rmtree(f'{hearthstoneDirectory}\\{PATCH_NAME}')
 	os.remove(f'{hearthstoneDirectory}\\{PATCH_NAME}{PATCH_EXTENSION}')
 	os.remove(f'{hearthstoneDirectory}\\{PATCH_README_FILENAME}')
 
-	print('Temporary patch files removed')
+	print('done')
 
 
 def main():
