@@ -32,12 +32,16 @@ def promptForHearthstoneDirectory():
 		hearthstoneDirectory = input('Please enter the path where you have the game installed: ')
 
 		if os.path.exists(f'{hearthstoneDirectory}\\hearthstone.exe'):
-			subprocess.run(
-				f"powershell.exe [System.Environment]::SetEnvironmentVariable('HEARTHSTONE_HOME', '{hearthstoneDirectory}', 'User')",
-				capture_output=True,
-			)
+			try:
+				subprocess.run(
+					f"powershell.exe [System.Environment]::SetEnvironmentVariable('HEARTHSTONE_HOME', '{hearthstoneDirectory}', 'User')",
+					capture_output=True,
+					check=True,
+				)
+			except subprocess.CalledProcessError as e:
+				print('Failed to set the environment variable:', e)
 			print(
-				'This path will be used moving forward. If it is no longer a valid Hearthstone installation directory, you will be prompted to re-enter a valid path.'
+				'This path will be remembered for future use. If it is no longer a valid Hearthstone installation directory, you will be prompted to re-enter a valid path.'
 			)
 			return hearthstoneDirectory
 		else:
@@ -45,19 +49,31 @@ def promptForHearthstoneDirectory():
 
 
 def downloadPatch(hearthstoneDirectory):
-	print(f'Downloading patch, this may take some time...', end='', flush=True)
+	print(f'Downloading patch, please wait...', end='', flush=True)
 
 	patchDownloadDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 	patchDownloadFile = f'{patchDownloadDirectory}{PATCH_EXTENSION}'
-	response = requests.get(PATCH_URL, stream=True)
 
-	if response.status_code == 200:
-		with open(patchDownloadFile, 'wb') as f:
-			for chunk in response.iter_content(chunk_size=8192):
-				f.write(chunk)
-		print('done')
-	else:
-		print(f'\nFailed to download the patch: status code {response.status_code}')
+	try:
+		response = requests.get(PATCH_URL, stream=True)
+
+		if response.status_code == 200:
+			with open(patchDownloadFile, 'wb') as f:
+				for chunk in response.iter_content(chunk_size=8192):
+					f.write(chunk)
+			print('done')
+		else:
+			print(f'\nFailed to download the patch: status code {response.status_code}')
+	except requests.exceptions.HTTPError as e:
+		print(f'\nHTTP error occurred: {e}')
+	except requests.exceptions.ConnectionError as e:
+		print(f'\nConnection error occurred: {e}')
+	except requests.exceptions.Timeout as e:
+		print(f'\nTimeout error occurred: {e}')
+	except requests.exceptions.RequestException as e:
+		print(f'\nAn error occurred during the request: {e}')
+	except IOError as e:
+		print(f'\nFile writing error occurred: {e}')
 
 
 def unzip(hearthstoneDirectory):
@@ -66,8 +82,15 @@ def unzip(hearthstoneDirectory):
 	patchZipDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 	patchZipFile = f'{patchZipDirectory}{PATCH_EXTENSION}'
 
-	with zipfile.ZipFile(patchZipFile, 'r') as z:
-		z.extractall(hearthstoneDirectory)
+	try:
+		with zipfile.ZipFile(patchZipFile, 'r') as z:
+			z.extractall(hearthstoneDirectory)
+	except zipfile.BadZipFile:
+		print('\nFailed to unzip the patch: The file is not a zip file or it is corrupted.')
+	except FileNotFoundError:
+		print('\nFailed to unzip the patch: The zip file does not exist.')
+	except PermissionError:
+		print('\nFailed to unzip the patch: Insufficient permissions.')
 
 	print('done')
 
@@ -77,14 +100,21 @@ def applyPatch(hearthstoneDirectory):
 
 	patchDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 
-	for item in os.listdir(patchDirectory):
-		sourceItem = os.path.join(patchDirectory, item)
-		destinationItem = os.path.join(hearthstoneDirectory, item)
+	try:
+		for item in os.listdir(patchDirectory):
+			sourceItem = os.path.join(patchDirectory, item)
+			destinationItem = os.path.join(hearthstoneDirectory, item)
 
-		if os.path.isdir(sourceItem):
-			shutil.copytree(sourceItem, destinationItem, dirs_exist_ok=True)
-		else:
-			shutil.copy2(sourceItem, destinationItem)
+			if os.path.isdir(sourceItem):
+				shutil.copytree(sourceItem, destinationItem, dirs_exist_ok=True)
+			else:
+				shutil.copy2(sourceItem, destinationItem)
+	except FileNotFoundError:
+		print('\nFailed to apply the patch: Source or destination directory does not exist.')
+	except PermissionError:
+		print('\nFailed to apply the patch: Insufficient permissions to read or write files.')
+	except IOError as e:
+		print(f'\nIO error occurred while copying files: {e}')
 
 	print('done')
 
@@ -97,7 +127,12 @@ def moveREADMEToDesktop(hearthstoneDirectory):
 	userWantsREADME = input('Do you want to place prepatch_readme.txt on your desktop? (y/n): ').strip().lower()
 
 	if userWantsREADME == 'y':
-		shutil.copy2(patchREADMEFile, desktopREADMEFile)
+		try:
+			shutil.copy2(patchREADMEFile, desktopREADMEFile)
+		except FileNotFoundError:
+			print('Failed to move the README: The source file does not exist.')
+		except PermissionError:
+			print('Failed to move the README: Insufficient permissions to read or write the file.')
 		print('The file is on your desktop')
 		print(f'The path to it is {desktopREADMEFile}')
 	else:
@@ -107,9 +142,16 @@ def moveREADMEToDesktop(hearthstoneDirectory):
 def cleanUp(hearthstoneDirectory):
 	print('Removing temporary patch files...', end='', flush=True)
 
-	shutil.rmtree(f'{hearthstoneDirectory}\\{PATCH_NAME}')
-	os.remove(f'{hearthstoneDirectory}\\{PATCH_NAME}{PATCH_EXTENSION}')
-	os.remove(f'{hearthstoneDirectory}\\{PATCH_README_FILENAME}')
+	try:
+		shutil.rmtree(f'{hearthstoneDirectory}\\{PATCH_NAME}')
+		os.remove(f'{hearthstoneDirectory}\\{PATCH_NAME}{PATCH_EXTENSION}')
+		os.remove(f'{hearthstoneDirectory}\\{PATCH_README_FILENAME}')
+	except FileNotFoundError:
+		print('\nFailed to clean up: One or more files did not exist.')
+	except PermissionError:
+		print('\nFailed to clean up: Insufficient permissions to delete files or directories.')
+	except OSError as e:
+		print(f'\nError during cleanup: {e}')
 
 	print('done')
 
@@ -122,9 +164,11 @@ def main():
 	applyPatch(hearthstoneDirectory)
 	moveREADMEToDesktop(hearthstoneDirectory)
 	cleanUp(hearthstoneDirectory)
-	print('Enjoy the game!')
 	input('Press the enter key to exit')
 
 
 if __name__ == '__main__':
-	main()
+	try:
+		main()
+	except Exception as e:
+		print(f'An unexpected error occurred: {e}')
