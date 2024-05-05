@@ -40,26 +40,26 @@ cd hearthstone-access-patcher
 A virtual environment (virtualenv) must be used when developing or consuming the package. All subsequent sections assume that you have created the virtualenv and have activated it. To create it, run the following command:
 
 ```sh
-python -m virtualenv .venv
+python -m venv .venv
 ```
 
 ### Activate the Virtualenv
 For Command Prompt on Windows:
 
 ```batch
-.\.virtualenv\Scripts\activate.bat
+.\.venv\Scripts\activate.bat
 ```
 
 For PowerShell on Windows:
 
 ```powershell
-.\.virtualenv\Scripts\activate.ps1
+.\.venv\Scripts\activate.ps1
 ```
 
 For Linux/MacOS:
 
 ```sh
-./.virtualenv/Scripts/activate
+./.venv/Scripts/activate
 ```
 
 To deactivate the virtualenv on all platforms:
