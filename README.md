@@ -90,7 +90,7 @@ Finally, run the patcher with Python:
 python hearthstoneAccessPatcher.py
 ```
 
-### General Development Notes
+### <a name="general-development-notes">General Development Notes</a>
 You will notice from the various configuration files in the repo that there are several tools to ensure certain code hygiene and quality conventions are enforced. You may wish to become familiar with these tools and the coding style configurations therein. For more info, please refer to:
 * (Ruff)[https://github.com/astral-sh/ruff]: used for code linting and formatting
 * (pre-commit](https://github.com/pre-commit/pre-commit): used for managing pre-commit hooks
