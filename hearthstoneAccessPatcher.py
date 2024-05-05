@@ -164,7 +164,7 @@ def main():
 	applyPatch(hearthstoneDirectory)
 	moveREADMEToDesktop(hearthstoneDirectory)
 	cleanUp(hearthstoneDirectory)
-	input('Press the enter key to exit')
+	input('Press enter to exit')
 
 
 if __name__ == '__main__':
