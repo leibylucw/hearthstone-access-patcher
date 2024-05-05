@@ -93,7 +93,7 @@ python hearthstoneAccessPatcher.py
 ### General Development Notes
 You will notice from the various configuration files in the repo that there are several tools to ensure certain code hygiene and quality conventions are enforced. You may wish to become familiar with these tools and the coding style configurations therein. For more info, please refer to:
 * [Ruff](https://github.com/astral-sh/ruff): used for code linting and formatting
-* [pre-commit](https://github.com/pre-commit/pre-commit]: used for managing pre-commit hooks
+* [pre-commit](https://github.com/pre-commit/pre-commit): used for managing pre-commit hooks
 
 ## Building the Patcher
 The patcher uses Pyinstaller to create a Windows executable. It was installed as part of the requirements in the development instructions. To build to a Windows binary (`.exe`), run the following command:
