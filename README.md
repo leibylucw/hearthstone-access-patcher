@@ -77,7 +77,7 @@ pip install -r requirements.txt
 ```
 
 ### Install the pre-commit Hooks
-See the [dev notes section](#general-development-notes) for more info about pre-commit hooks. For now, all you need to do is install them using the following command:
+See the dev notes section for more info about pre-commit hooks. For now, all you need to do is install them using the following command:
 
 ```shell
 pre-commit install
@@ -90,7 +90,7 @@ Finally, run the patcher with Python:
 python hearthstoneAccessPatcher.py
 ```
 
-### <a name="general-development-notes">General Development Notes</a>
+### General Development Notes
 You will notice from the various configuration files in the repo that there are several tools to ensure certain code hygiene and quality conventions are enforced. You may wish to become familiar with these tools and the coding style configurations therein. For more info, please refer to:
 * (Ruff)[https://github.com/astral-sh/ruff]: used for code linting and formatting
 * (pre-commit](https://github.com/pre-commit/pre-commit): used for managing pre-commit hooks
