@@ -7,9 +7,9 @@ import sys
 import zipfile
 
 
-HEARTHSTONE_ACCESS_COMMUNITY_PATCH_URL = 'https://hearthstoneaccess.com/files/pre_patch.zip'
+PATCH_URL = 'https://hearthstoneaccess.com/files/pre_patch.zip'
 PATCH_DIRECTORIES = ['Accessibility', 'Hearthstone_Data', 'Strings']
-HEARTHSTONE_ACCESS_COMMUNITY_PATCH_README_FILENAME = 'prepatch_readme.txt'
+PATCH_README_FILENAME = 'prepatch_readme.txt'
 PATCH_NAME = 'HSAPatch'
 PATCH_EXTENSION = '.zip'
 DEFAULT_HEARTHSTONE_DIRECTORY = 'C:\\Program Files (x86)\\Hearthstone'
@@ -39,10 +39,10 @@ def promptForHearthstoneDirectory():
 
 
 def downloadPatch(hearthstoneDirectory):
-	print(f'Downloading patch at {HEARTHSTONE_ACCESS_COMMUNITY_PATCH_URL}')
+	print(f'Downloading patch at {PATCH_URL}')
 	patchDownloadPath = os.path.join(hearthstoneDirectory, PATCH_NAME)
 	patchDownloadFile = f'{patchDownloadPath}{PATCH_EXTENSION}'
-	response = requests.get(HEARTHSTONE_ACCESS_COMMUNITY_PATCH_URL, stream=True)
+	response = requests.get(PATCH_URL, stream=True)
 	if response.status_code == 200:
 		with open(patchDownloadPath, 'wb') as f:
 			for chunk in response.iter_content(chunk_size=8192):
@@ -87,9 +87,9 @@ def applyPatch(hearthstoneDirectory):
 
 
 def moveREADMEToDesktop(hearthstoneDirectory):
-	patchREADMEPath = f'{hearthstoneDirectory}\\{HEARTHSTONE_ACCESS_COMMUNITY_PATCH_README_FILENAME}'
+	patchREADMEPath = f'{hearthstoneDirectory}\\{PATCH_README_FILENAME}'
 	desktopPath = os.path.join(os.path.expanduser('~'), 'Desktop')
-	destinationPath = f'{desktopPath}\\{HEARTHSTONE_ACCESS_COMMUNITY_PATCH_README_FILENAME}'
+	destinationPath = f'{desktopPath}\\{PATCH_README_FILENAME}'
 
 	userWantsREADME = input('Do you want to place prepatch_readme.txt on your desktop? (y/n): ').strip().lower()
 
