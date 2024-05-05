@@ -76,6 +76,13 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+### Install the pre-commit Hooks
+See the [dev notes section](#general-development-notes) for more info about pre-commit hooks. For now, all you need to do is install them using the following command:
+
+```shell
+pre-commit install
+```
+
 ### Running the Patcher
 Finally, run the patcher with Python:
 
