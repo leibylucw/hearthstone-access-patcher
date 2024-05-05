@@ -39,14 +39,14 @@ cd hearthstone-access-patcher
 ### Create a Virtual Environment (virtualenv)
 A virtual environment (virtualenv) must be used when developing or consuming the package. All subsequent sections assume that you have created the virtualenv and have activated it. To create it, run the following command:
 
-```sh
+```shell
 python -m venv .venv
 ```
 
 ### Activate the Virtualenv
 For Command Prompt on Windows:
 
-```batch
+```cmd
 .\.venv\Scripts\activate.bat
 ```
 
@@ -80,7 +80,7 @@ pip install -r requirements.txt
 Finally, run the patcher with Python:
 
 ```shell
-python hearthstone-access-patcher.py
+python hearthstoneAccessPatcher.py
 ```
 
 ### General Development Notes
