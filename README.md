@@ -11,8 +11,8 @@ This script (referred to as the patcher) performs the following tasks:
 
 There are two general target audiences: those who wish to simply use the patcher, and those who wish to develop/build the patcher.
 
-## Using the Patch
-To use the patch, download the latest executable from the [latest release page](https://github.com/leibylucw/hearthstone-access-patcher/releases/latest) and run like any other program.
+## Using the Patcher
+To use the patcher, download the latest executable from the [latest release page](https://github.com/leibylucw/hearthstone-access-patcher/releases/latest) and run like any other program.
 
 ## Developing the Patcher
 ### Install System Dependencies
@@ -37,7 +37,7 @@ cd hearthstone-access-patcher
 ```
 
 ### Create a Virtual Environment (virtualenv)
-A virtual environment (virtualenv) must be used when developing or consuming the package. All subsequent sections assume that you have created the virtualenv and have activated it. To create it, run the following command:
+A virtual environment (virtualenv) must be used when using, developing, or building the project. All subsequent sections assume that you have created the virtualenv and have activated it. To create it, run the following command:
 
 ```shell
 python -m venv .venv
@@ -96,7 +96,7 @@ You will notice from the various configuration files in the repo that there are 
 * [pre-commit](https://github.com/pre-commit/pre-commit): used for managing pre-commit hooks
 
 ## Building the Patcher
-The patcher uses Pyinstaller to create a Windows executable. It was installed as part of the requirements in the development instructions. To build to a Windows binary (`.exe`), run the following command:
+The patcher uses Pyinstaller to create a Windows executable. It was installed as part of the requirements in the development instructions. To build a Windows binary (`.exe`), run the following command:
 
 ```
 pyinstaller --onefile hearthstoneAccessPatcher.py
