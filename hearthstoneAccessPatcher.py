@@ -8,7 +8,6 @@ import zipfile
 
 
 PATCH_URL = 'https://hearthstoneaccess.com/files/pre_patch.zip'
-PATCH_DIRECTORIES = ['Accessibility', 'Hearthstone_Data', 'Strings']
 PATCH_NAME = 'patch'
 PATCH_EXTENSION = '.zip'
 PATCH_README_FILENAME = 'prepatch_readme.txt'
@@ -78,18 +77,14 @@ def applyPatch(hearthstoneDirectory):
 
 	patchDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 
-	for directory in PATCH_DIRECTORIES:
-		sourcePath = os.path.join(patchDirectory, directory)
-		destinationPath = os.path.join(hearthstoneDirectory, directory)
+	for item in os.listdir(patchDirectory):
+		sourceItem = os.path.join(patchDirectory, item)
+		destinationItem = os.path.join(hearthstoneDirectory, item)
 
-		for item in os.listdir(sourcePath):
-			sourceItem = os.path.join(sourcePath, item)
-			destinationItem = os.path.join(destinationPath, item)
-
-			if os.path.isdir(sourceItem):
-				shutil.copytree(sourceItem, destinationItem, dirs_exist_ok=True)
-			else:
-				shutil.copy2(sourceItem, destinationItem)
+		if os.path.isdir(sourceItem):
+			shutil.copytree(sourceItem, destinationItem, dirs_exist_ok=True)
+		else:
+			shutil.copy2(sourceItem, destinationItem)
 
 	print('done')
 
