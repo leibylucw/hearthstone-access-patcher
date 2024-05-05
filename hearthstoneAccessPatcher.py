@@ -39,7 +39,7 @@ def promptForHearthstoneDirectory():
 				)
 			except subprocess.CalledProcessError as e:
 				print('Failed to set the environment variable:', e)
-				sys.exit(1)
+				exit(withError=True)
 			print(
 				'This path will be remembered for future use. If it is no longer a valid Hearthstone installation directory, you will be prompted to re-enter a valid path.'
 			)
@@ -66,19 +66,19 @@ def downloadPatch(hearthstoneDirectory):
 			print(f'\nFailed to download the patch: status code {response.status_code}')
 	except requests.exceptions.HTTPError as e:
 		print(f'\nHTTP error occurred: {e}')
-		sys.exit(1)
+		exit(withError=True)
 	except requests.exceptions.ConnectionError as e:
 		print(f'\nConnection error occurred: {e}')
-		sys.exit(1)
+		exit(withError=True)
 	except requests.exceptions.Timeout as e:
 		print(f'\nTimeout error occurred: {e}')
-		sys.exit(1)
+		exit(withError=True)
 	except requests.exceptions.RequestException as e:
 		print(f'\nAn error occurred during the request: {e}')
-		sys.exit(1)
+		exit(withError=True)
 	except IOError as e:
 		print(f'\nFile writing error occurred: {e}')
-		sys.exit(1)
+		exit(withError=True)
 
 
 def unzip(hearthstoneDirectory):
@@ -92,13 +92,13 @@ def unzip(hearthstoneDirectory):
 			z.extractall(hearthstoneDirectory)
 	except zipfile.BadZipFile:
 		print('\nFailed to unzip the patch: The file is not a zip file or it is corrupted.')
-		sys.exit(1)
+		exit(withError=True)
 	except FileNotFoundError:
 		print('\nFailed to unzip the patch: The zip file does not exist.')
-		sys.exit(1)
+		exit(withError=True)
 	except PermissionError:
 		print('\nFailed to unzip the patch: Insufficient permissions.')
-		sys.exit(1)
+		exit(withError=True)
 
 	print('done')
 
@@ -119,13 +119,13 @@ def applyPatch(hearthstoneDirectory):
 				shutil.copy2(sourceItem, destinationItem)
 	except FileNotFoundError:
 		print('\nFailed to apply the patch: Source or destination directory does not exist.')
-		sys.exit(1)
+		exit(withError=True)
 	except PermissionError:
 		print('\nFailed to apply the patch: Insufficient permissions to read or write files.')
-		sys.exit(1)
+		exit(withError=True)
 	except IOError as e:
 		print(f'\nIO error occurred while copying files: {e}')
-		sys.exit(1)
+		exit(withError=True)
 
 	print('done')
 
@@ -142,10 +142,10 @@ def moveREADMEToDesktop(hearthstoneDirectory):
 			shutil.copy2(patchREADMEFile, desktopREADMEFile)
 		except FileNotFoundError:
 			print('Failed to move the README: The source file does not exist.')
-			sys.exit(1)
+			exit(withError=True)
 		except PermissionError:
 			print('Failed to move the README: Insufficient permissions to read or write the file.')
-			sys.exit(1)
+			exit(withError=True)
 		print('The file is on your desktop')
 		print(f'The path to it is {desktopREADMEFile}')
 	else:
@@ -161,15 +161,24 @@ def cleanUp(hearthstoneDirectory):
 		os.remove(f'{hearthstoneDirectory}\\{PATCH_README_FILENAME}')
 	except FileNotFoundError:
 		print('\nFailed to clean up: One or more files did not exist.')
-		sys.exit(1)
+		exit(withError=True)
 	except PermissionError:
 		print('\nFailed to clean up: Insufficient permissions to delete files or directories.')
-		sys.exit(1)
+		exit(withError=True)
 	except OSError as e:
 		print(f'\nError during cleanup: {e}')
-		sys.exit(1)
+		exit(withError=True)
 
 	print('done')
+
+
+def exit(withError=False):
+	if withError is False:
+		input('Press enter to exit')
+		sys.exit(0)
+	else:
+		print('If you have Hearthstone running, please close the game and try to run the patcher again.')
+		sys.exit(1)
 
 
 def main():
@@ -180,7 +189,7 @@ def main():
 	applyPatch(hearthstoneDirectory)
 	moveREADMEToDesktop(hearthstoneDirectory)
 	cleanUp(hearthstoneDirectory)
-	input('Press enter to exit')
+	exit()
 
 
 if __name__ == '__main__':
@@ -190,4 +199,4 @@ if __name__ == '__main__':
 		main()
 	except Exception as e:
 		print(f'An unexpected error occurred: {e}')
-		sys.exit(1)
+		exit(withError=True)
