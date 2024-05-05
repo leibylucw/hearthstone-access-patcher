@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Ruff: code linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version
+    rev: v0.4.1
+    hooks:
+      # Run the linter
+      - id: ruff
+        args: [ --fix ]
+      # Run the formatter
+      - id: ruff-format
+
+  # Vermin: Python compatibility checker
+  - repo: https://github.com/netromdk/vermin
+    # Vermin version
+    rev: v1.6.0
+    hooks:
+      - id: vermin
+        args: ['--no-parse-comments', '--target=3.11-', '--lint', '--violations']

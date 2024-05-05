@@ -1,0 +1,18 @@
+line-length = 120
+output-format = "grouped"
+show-fixes = true
+target-version = "py312"
+
+[format]
+docstring-code-format = true
+indent-style = "tab"
+line-ending = "lf"
+quote-style = "single"
+
+[lint]
+select = [
+	"W505", # pycodestyle -> Warning -> "Doc line too long"
+]
+
+[lint.pycodestyle]
+max-doc-length = 120
