@@ -9,9 +9,9 @@ import zipfile
 
 PATCH_URL = 'https://hearthstoneaccess.com/files/pre_patch.zip'
 PATCH_DIRECTORIES = ['Accessibility', 'Hearthstone_Data', 'Strings']
-PATCH_README_FILENAME = 'prepatch_readme.txt'
 PATCH_NAME = 'patch'
 PATCH_EXTENSION = '.zip'
+PATCH_README_FILENAME = 'prepatch_readme.txt'
 DEFAULT_HEARTHSTONE_DIRECTORY = 'C:\\Program Files (x86)\\Hearthstone'
 
 
@@ -76,7 +76,7 @@ def unzip(hearthstoneDirectory):
 def applyPatch(hearthstoneDirectory):
 	print('Applying patch...', end='', flush=True)
 
-	patchDirectory = os.path.join(hearthstoneDirectory, 'patch')
+	patchDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 
 	for directory in PATCH_DIRECTORIES:
 		sourcePath = os.path.join(patchDirectory, directory)
