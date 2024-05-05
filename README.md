@@ -3,7 +3,7 @@ A script that automates patching Hearthstone using the [HearthstoneAccess Commun
 
 ## Overview
 This script (referred to as the patcher) performs the following tasks:
-* Downloads the zipped archive of the HearthstoneAccess community patch
+* Downloads the zipped archive of the HearthstoneAccess Community Patch
 * Unzips the archive
 * Places the contents in your Hearthstone installation directory
 * Prompts if you want the changelog put on your desktop
