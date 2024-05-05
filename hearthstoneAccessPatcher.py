@@ -1,4 +1,3 @@
-import ctypes
 import os
 import requests
 import shutil
@@ -185,6 +184,8 @@ def main():
 
 
 if __name__ == '__main__':
+	os.system('title HearthstoneAccess Patcher')
+
 	try:
 		main()
 	except Exception as e:
