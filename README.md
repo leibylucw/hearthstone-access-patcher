@@ -88,7 +88,7 @@ You will notice from the various configuration files in the repo that there are 
 * (Ruff)[https://github.com/astral-sh/ruff]: used for code linting and formatting
 * (pre-commit](https://github.com/pre-commit/pre-commit): used for managing pre-commit hooks
 
-### Building the Patcher
+## Building the Patcher
 The patcher uses Pyinstaller to create a Windows executable. It was installed as part of the requirements in the development instructions. To build to a Windows binary (`.exe`), run the following command:
 
 ```
