@@ -18,7 +18,7 @@ DEFAULT_HEARTHSTONE_DIRECTORY = 'C:\\Program Files (x86)\\Hearthstone'
 def getHearthstoneDirectory():
 	if os.path.exists(f'{DEFAULT_HEARTHSTONE_DIRECTORY}\\hearthstone.exe'):
 		return DEFAULT_HEARTHSTONE_DIRECTORY
-	elif environmentDirectory := os.getenv('HEARTHSTONE_HOME') and os.path.exists(
+	elif (environmentDirectory := os.getenv('HEARTHSTONE_HOME')) and os.path.exists(
 		f'{environmentDirectory}\\hearthstone.exe'
 	):
 		return environmentDirectory
@@ -31,6 +31,7 @@ def promptForHearthstoneDirectory():
 
 	while True:
 		hearthstoneDirectory = input('Please enter the path where you have the game installed: ')
+
 		if os.path.exists(f'{hearthstoneDirectory}\\hearthstone.exe'):
 			subprocess.run(
 				f"powershell.exe [System.Environment]::SetEnvironmentVariable('HEARTHSTONE_HOME', '{hearthstoneDirectory}', 'User')",
@@ -39,16 +40,18 @@ def promptForHearthstoneDirectory():
 			print(
 				'This path will be used moving forward. If it is no longer a valid Hearthstone installation directory, you will be prompted to re-enter a valid path.'
 			)
-		else:
-			print(f'{hearthstoneDirectory} is not a valid Hearthstone installation directory.')
 			return hearthstoneDirectory
+		else:
+			print('That is not a valid Hearthstone installation directory.')
 
 
 def downloadPatch(hearthstoneDirectory):
-	print(f'Downloading patch at {PATCH_URL}...', end='', flush=True)
+	print(f'Downloading patch, this may take some time...', end='', flush=True)
+
 	patchDownloadDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 	patchDownloadFile = f'{patchDownloadDirectory}{PATCH_EXTENSION}'
 	response = requests.get(PATCH_URL, stream=True)
+
 	if response.status_code == 200:
 		with open(patchDownloadFile, 'wb') as f:
 			for chunk in response.iter_content(chunk_size=8192):
@@ -60,6 +63,7 @@ def downloadPatch(hearthstoneDirectory):
 
 def unzip(hearthstoneDirectory):
 	print('Unzipping patch...', end='', flush=True)
+
 	patchZipDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 	patchZipFile = f'{patchZipDirectory}{PATCH_EXTENSION}'
 
@@ -71,6 +75,7 @@ def unzip(hearthstoneDirectory):
 
 def applyPatch(hearthstoneDirectory):
 	print('Applying patch...', end='', flush=True)
+
 	patchDirectory = os.path.join(hearthstoneDirectory, 'patch')
 
 	for directory in PATCH_DIRECTORIES:
@@ -90,16 +95,16 @@ def applyPatch(hearthstoneDirectory):
 
 
 def moveREADMEToDesktop(hearthstoneDirectory):
-	patchREADMEPath = f'{hearthstoneDirectory}\\{PATCH_README_FILENAME}'
 	desktopPath = os.path.join(os.path.expanduser('~'), 'Desktop')
-	destinationPath = f'{desktopPath}\\{PATCH_README_FILENAME}'
+	patchREADMEFile = f'{hearthstoneDirectory}\\{PATCH_README_FILENAME}'
+	desktopREADMEFile = f'{desktopPath}\\{PATCH_README_FILENAME}'
 
 	userWantsREADME = input('Do you want to place prepatch_readme.txt on your desktop? (y/n): ').strip().lower()
 
 	if userWantsREADME == 'y':
-		shutil.copy2(patchREADMEPath, desktopPath)
+		shutil.copy2(patchREADMEFile, desktopREADMEFile)
 		print('The file is on your desktop')
-		print(f'The path to it is {destinationPath}')
+		print(f'The path to it is {desktopREADMEFile}')
 	else:
 		print('Okay, skipping README')
 
