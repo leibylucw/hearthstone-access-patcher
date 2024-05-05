@@ -18,7 +18,7 @@ To use the patch, download the latest executable from the [latest release page](
 ### Install System Dependencies
 Make sure you have the following dependencies installed and available on your system:
 * [Git](https://git-scm.com/): any recent version
-* [gh (the GitHub CLI)](https://cli.github.com/) (optional): any recent version
+* [GitHub CLI](https://cli.github.com/) (optional): any recent version
 * [CPython](https://www.python.org/): version 3.11 or higher is supported
 
 ### Clone the Repo
