@@ -1,12 +1,12 @@
 import datetime
 import logging
 import os
-import requests
 import shutil
 import subprocess
 import sys
 import zipfile
 
+import requests
 
 PATCH_URL = 'https://hearthstoneaccess.com/files/pre_patch.zip'
 PATCH_NAME = 'patch'
