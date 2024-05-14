@@ -9,14 +9,15 @@ import zipfile
 import requests
 
 DATE_STRING = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+DEFAULT_HEARTHSTONE_DIRECTORY = 'C:\\Program Files (x86)\\Hearthstone'
 LOG_FILE_NAME = f'hearthstoneAccessPatcher_{DATE_STRING}'
 LOG_FILE_EXTENSION = '.log'
 LOG_FILE = f'{LOG_FILE_NAME}{LOG_FILE_EXTENSION}'
 PATCH_URL = 'https://hearthstoneaccess.com/files/pre_patch.zip'
-PATCH_NAME = 'patch'
-PATCH_EXTENSION = '.zip'
+PATCH_FILE_NAME = 'patch'
+PATCH_FILE_EXTENSION = '.zip'
+PATCH_FILE = f'{PATCH_FILE_NAME}{PATCH_FILE_EXTENSION}'
 PATCH_README_FILENAME = 'prepatch_readme.txt'
-DEFAULT_HEARTHSTONE_DIRECTORY = 'C:\\Program Files (x86)\\Hearthstone'
 
 
 def getHearthstoneDirectory():
@@ -60,8 +61,8 @@ def downloadPatch(hearthstoneDirectory):
 	logging.debug(f'Downloading patch')
 	print('Donwloading patch, please wait...')
 
-	patchDownloadDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
-	patchDownloadFile = f'{patchDownloadDirectory}{PATCH_EXTENSION}'
+	patchDownloadDirectory = os.path.join(hearthstoneDirectory, PATCH_FILE)
+	patchDownloadFile = f'{patchDownloadDirectory}{PATCH_FILE}'
 
 	logging.debug(f"Patch will be downloaded to '{patchDownloadFile}'")
 
@@ -91,10 +92,9 @@ def downloadPatch(hearthstoneDirectory):
 def unzip(hearthstoneDirectory):
 	logging.debug('Unzipping patch')
 
-	patchZipDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
-	patchZipFile = f'{patchZipDirectory}{PATCH_EXTENSION}'
+	patchZipFile = os.path.join(hearthstoneDirectory, PATCH_FILE)
 
-	logging.debug(f"Patch will be unzipped to '{patchZipDirectory}'")
+	logging.debug(f"Patch will be unzipped to '{patchZipFile}'")
 
 	try:
 		with zipfile.ZipFile(patchZipFile, 'r') as z:
@@ -112,7 +112,7 @@ def unzip(hearthstoneDirectory):
 def applyPatch(hearthstoneDirectory):
 	logging.debug('Applying patch')
 
-	patchDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
+	patchDirectory = os.path.join(hearthstoneDirectory, PATCH_FILE_NAME)
 
 	try:
 		for item in os.listdir(patchDirectory):
@@ -154,6 +154,7 @@ def moveREADMEToDesktop(hearthstoneDirectory):
 			logging.error('Failed to move the README: Insufficient permissions to read or write the file')
 	else:
 		print('Okay, skipping README')
+		return
 
 	logging.debug(f"Copying '{patchREADMEFile}' to '{desktopREADMEFile}'")
 	print('The README has been placed on your desktop')
@@ -164,16 +165,17 @@ def cleanUp(hearthstoneDirectory):
 	logging.debug('Removing temporary patch files')
 
 	try:
-		shutil.rmtree(f'{hearthstoneDirectory}\\{PATCH_NAME}')
-		os.remove(f'{hearthstoneDirectory}\\{PATCH_NAME}{PATCH_EXTENSION}')
+		shutil.rmtree(f'{hearthstoneDirectory}\\{PATCH_FILE_NAME}')
+		os.remove(f'{hearthstoneDirectory}\\{PATCH_FILE_NAME}{PATCH_FILE_EXTENSION}')
 		os.remove(f'{hearthstoneDirectory}\\{PATCH_README_FILENAME}')
-		logging.debug('Temporary files removed')
 	except FileNotFoundError:
 		logging.error('Failed to clean up: One or more files did not exist')
 	except PermissionError:
 		logging.error('Failed to clean up: Insufficient permissions to delete files or directories')
 	except OSError as e:
 		logging.error(f'Error during cleanup:\n{e}')
+
+	logging.debug('Temporary files removed')
 
 
 def exit(exitCode):
