@@ -56,6 +56,7 @@ def promptForHearthstoneDirectory():
 					'There was an error setting the environment variable with the installation path. Check the log file for details.'
 				)
 			logging.debug(f"Hearthstone installation directory located at '{hearthstoneDirectory}'")
+			logging.debug('Environment variable set')
 			return hearthstoneDirectory
 		else:
 			logging.debug(f"Invalid path: '{hearthstoneDirectory}'")
