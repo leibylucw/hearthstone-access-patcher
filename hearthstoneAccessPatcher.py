@@ -25,13 +25,11 @@ def getHearthstoneDirectory():
 		logging.debug('Hearthstone installation found from environment variable')
 		return environmentDirectory
 	else:
-		logging.debug('Neither default or environment variable installations located')
+		logging.warning("Couldn't find the Hearthstone installation folder.")
 		return promptForHearthstoneDirectory()
 
 
 def promptForHearthstoneDirectory():
-	logging.warning("The patcher couldn't find the Hearthstone installation folder.")
-
 	while True:
 		logging.debug('Prompting user for Hearthstone installation directory')
 		hearthstoneDirectory = input('Please enter the path where you have the game installed: ')
@@ -46,16 +44,14 @@ def promptForHearthstoneDirectory():
 				)
 			except subprocess.CalledProcessError as e:
 				logging.error(f'Could not set HEARTHSTONE_HOME environment variable:\n{e}')
-			logging.info(
-				'This path will be remembered for future use. If it is no longer a valid Hearthstone installation directory, you will be prompted to re-enter a valid path.'
-			)
+			logging.info(f"Hearthstone installation directory located at '{hearthstoneDirectory}'")
 			return hearthstoneDirectory
 		else:
-			logging.warning('That is not a valid Hearthstone installation directory.')
+			logging.debug(f"Invalid path: '{hearthstoneDirectory}'")
 
 
 def downloadPatch(hearthstoneDirectory):
-	logging.info(f'Downloading patch, please wait')
+	logging.debug(f'Downloading patch')
 
 	patchDownloadDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 	patchDownloadFile = f'{patchDownloadDirectory}{PATCH_EXTENSION}'
@@ -144,13 +140,14 @@ def moveREADMEToDesktop(hearthstoneDirectory):
 		try:
 			shutil.copy2(patchREADMEFile, desktopREADMEFile)
 			logging.debug(f"Copying '{patchREADMEFile}' to '{desktopREADMEFile}'")
-			logging.info('The README has been placed on your desktop')
+			print('The README has been placed on your desktop')
+			print(f'It is called {PATCH_README_FILENAME}')
 		except FileNotFoundError:
 			logging.error('Failed to move the README: The source file does not exist')
 		except PermissionError:
 			logging.error('Failed to move the README: Insufficient permissions to read or write the file')
 	else:
-		logging.info('Okay, skipping README')
+		print('Okay, skipping README')
 
 
 def cleanUp(hearthstoneDirectory):
@@ -177,12 +174,6 @@ def exit():
 
 def initializeLogging():
 	logging.getLogger().setLevel(logging.DEBUG)
-
-	consoleHandler = logging.StreamHandler()
-	consoleHandler.setLevel(logging.INFO)
-	consoleFormatter = logging.Formatter('%(message)s')
-	consoleHandler.setFormatter(consoleFormatter)
-	logging.getLogger().addHandler(consoleHandler)
 
 	dateString = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 	fileHandler = logging.FileHandler(f'hearthstone-access-patcher_{dateString}.log')
