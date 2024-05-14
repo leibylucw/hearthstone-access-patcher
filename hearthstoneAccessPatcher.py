@@ -44,6 +44,7 @@ def promptForHearthstoneDirectory():
 		logging.debug(f"User input: '{hearthstoneDirectory}'")
 
 		if os.path.exists(f'{hearthstoneDirectory}\\hearthstone.exe'):
+			logging.debug(f"Hearthstone installation directory located at '{hearthstoneDirectory}'")
 			try:
 				subprocess.run(
 					f"powershell.exe [System.Environment]::SetEnvironmentVariable('HEARTHSTONE_HOME', '{hearthstoneDirectory}', 'User')",
@@ -55,7 +56,6 @@ def promptForHearthstoneDirectory():
 				print(
 					'There was an error setting the environment variable with the installation path. Check the log file for details.'
 				)
-			logging.debug(f"Hearthstone installation directory located at '{hearthstoneDirectory}'")
 			logging.debug('Environment variable set')
 			return hearthstoneDirectory
 		else:
