@@ -8,6 +8,10 @@ import zipfile
 
 import requests
 
+DATE_STRING = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+LOG_FILE_NAME = f'hearthstoneAccessPatcher_{DATE_STRING}'
+LOG_FILE_EXTENSION = '.log'
+LOG_FILE = f'{LOG_FILE_NAME}{LOG_FILE_EXTENSION}'
 PATCH_URL = 'https://hearthstoneaccess.com/files/pre_patch.zip'
 PATCH_NAME = 'patch'
 PATCH_EXTENSION = '.zip'
@@ -32,7 +36,7 @@ def getHearthstoneDirectory():
 def promptForHearthstoneDirectory():
 	while True:
 		logging.debug('Prompting user for Hearthstone installation directory')
-		hearthstoneDirectory = input('Please enter the path where you have the game installed: ')
+		hearthstoneDirectory = input('Please enter the path where you have Hearthstone installed: ')
 		logging.debug(f"User input: '{hearthstoneDirectory}'")
 
 		if os.path.exists(f'{hearthstoneDirectory}\\hearthstone.exe'):
@@ -44,14 +48,17 @@ def promptForHearthstoneDirectory():
 				)
 			except subprocess.CalledProcessError as e:
 				logging.error(f'Could not set HEARTHSTONE_HOME environment variable:\n{e}')
-			logging.info(f"Hearthstone installation directory located at '{hearthstoneDirectory}'")
+			logging.debug(f"Hearthstone installation directory located at '{hearthstoneDirectory}'")
+			print('Great! This path will be remembered for next time.')
 			return hearthstoneDirectory
 		else:
 			logging.debug(f"Invalid path: '{hearthstoneDirectory}'")
+			print('That is not a valid Hearthstone installation directory.')
 
 
 def downloadPatch(hearthstoneDirectory):
 	logging.debug(f'Downloading patch')
+	print('Donwloading patch, please wait...')
 
 	patchDownloadDirectory = os.path.join(hearthstoneDirectory, PATCH_NAME)
 	patchDownloadFile = f'{patchDownloadDirectory}{PATCH_EXTENSION}'
@@ -65,7 +72,6 @@ def downloadPatch(hearthstoneDirectory):
 			with open(patchDownloadFile, 'wb') as f:
 				for chunk in response.iter_content(chunk_size=8192):
 					f.write(chunk)
-			logging.debug('Download complete')
 		else:
 			logging.critical(f'Failed to download the patch: status code {response.status_code}')
 	except requests.exceptions.HTTPError as e:
@@ -78,6 +84,8 @@ def downloadPatch(hearthstoneDirectory):
 		logging.critical(f'An error occurred during the request:\n{e}')
 	except IOError as e:
 		logging.CRITICAL(f'\nFile writing error occurred:\n{e}')
+
+	logging.debug('Download complete')
 
 
 def unzip(hearthstoneDirectory):
@@ -124,7 +132,8 @@ def applyPatch(hearthstoneDirectory):
 	except IOError as e:
 		logging.critical(f'\nIO error occurred while copying files:\n{e}')
 
-	logging.info('Successfully patched!')
+	logging.info('Successfully patched')
+	print('Success!')
 
 
 def moveREADMEToDesktop(hearthstoneDirectory):
@@ -139,15 +148,16 @@ def moveREADMEToDesktop(hearthstoneDirectory):
 	if userWantsREADME == 'y':
 		try:
 			shutil.copy2(patchREADMEFile, desktopREADMEFile)
-			logging.debug(f"Copying '{patchREADMEFile}' to '{desktopREADMEFile}'")
-			print('The README has been placed on your desktop')
-			print(f'It is called {PATCH_README_FILENAME}')
 		except FileNotFoundError:
 			logging.error('Failed to move the README: The source file does not exist')
 		except PermissionError:
 			logging.error('Failed to move the README: Insufficient permissions to read or write the file')
 	else:
 		print('Okay, skipping README')
+
+	logging.debug(f"Copying '{patchREADMEFile}' to '{desktopREADMEFile}'")
+	print('The README has been placed on your desktop')
+	print(f'It is called {PATCH_README_FILENAME}')
 
 
 def cleanUp(hearthstoneDirectory):
@@ -166,17 +176,22 @@ def cleanUp(hearthstoneDirectory):
 		logging.error(f'Error during cleanup:\n{e}')
 
 
-def exit():
-	logging.debug('Prompting user to exit')
-	input('Press enter to exit...')
-	logging.debug('Patcher exiting')
+def exit(exitCode):
+	if exitCode == 0:
+		logging.debug('Prompting user to exit')
+		input('Press enter to exit...')
+		logging.debug('Patcher exiting')
+		sys.exit(0)
+	else:
+		print('An error has occurred while patching')
+		print('Please send the log file to the HearthstoneAccess Discord server')
+		print(f"It is located at '{LOG_FILE}'")
 
 
 def initializeLogging():
 	logging.getLogger().setLevel(logging.DEBUG)
 
-	dateString = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-	fileHandler = logging.FileHandler(f'hearthstone-access-patcher_{dateString}.log')
+	fileHandler = logging.FileHandler(LOG_FILE)
 	fileHandler.setLevel(logging.DEBUG)
 	fileFormatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d_%H-%M-%S')
 	logging.getLogger().addHandler(fileHandler)
@@ -186,6 +201,7 @@ def initializeLogging():
 def main():
 	initializeLogging()
 	hearthstoneDirectory = getHearthstoneDirectory()
+	print(f'Patch will be installed to {hearthstoneDirectory}')
 	downloadPatch(hearthstoneDirectory)
 	unzip(hearthstoneDirectory)
 	applyPatch(hearthstoneDirectory)
