@@ -1,197 +1,241 @@
-import ctypes
+import datetime
+import logging
 import os
-import requests
 import shutil
 import subprocess
 import sys
 import zipfile
 
+import requests
 
-def determine_patch_destination():
-    hearthstone_default_dir = "C:\\Program Files (x86)\\Hearthstone"
-    hearthstone_default_dir_exists = os.path.exists(hearthstone_default_dir)
-    hearthstone_dir_env_is_set = bool(get_hearthstone_dir_from_environment())
-
-    if not hearthstone_default_dir_exists and not hearthstone_dir_env_is_set:
-        hearthstone_dir = get_hearthstone_dir_from_user()
-
-    elif not hearthstone_default_dir_exists and hearthstone_dir_env_is_set:
-        hearthstone_dir = get_hearthstone_dir_from_environment()
-
-    else:
-        hearthstone_dir = hearthstone_default_dir
-
-    print(f"Patch will be installed to {hearthstone_dir}")
-
-    return hearthstone_dir
+DATE_STRING = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+DEFAULT_HEARTHSTONE_DIRECTORY = 'C:\\Program Files (x86)\\Hearthstone'
+USER_HOME_DIRECTORY = os.path.expanduser('~')
+DESKTOP_PATH = os.path.join(USER_HOME_DIRECTORY, 'Desktop')
+DOCUMENTS_PATH = os.path.join(os.path.expanduser('~'), 'Documents')
+LOG_FILE_NAME = f'hearthstoneAccessPatcher_{DATE_STRING}'
+LOG_FILE_EXTENSION = '.log'
+LOG_FILE = os.path.join(DOCUMENTS_PATH, f'{LOG_FILE_NAME}{LOG_FILE_EXTENSION}')
+PATCH_URL = 'https://hearthstoneaccess.com/files/pre_patch.zip'
+PATCH_FILE_NAME = 'patch'
+PATCH_FILE_EXTENSION = '.zip'
+PATCH_FILE = f'{PATCH_FILE_NAME}{PATCH_FILE_EXTENSION}'
+PATCH_README_FILE = 'prepatch_readme.txt'
 
 
-def get_hearthstone_dir_from_environment():
-    process = subprocess.run(
-        "powershell.exe [System.Environment]::GetEnvironmentVariable('HEARTHSTONE_HOME', 'User')",
-        capture_output=True)
-    hearthstone_dir = process.stdout.decode()
-    return hearthstone_dir.strip()
+def getHearthstoneDirectory():
+	if os.path.exists(f'{DEFAULT_HEARTHSTONE_DIRECTORY}\\hearthstone.exe'):
+		logging.debug('Default Hearthstone installation found')
+		return DEFAULT_HEARTHSTONE_DIRECTORY
+	elif (environmentDirectory := os.getenv('HEARTHSTONE_HOME')) and os.path.exists(
+		f'{environmentDirectory}\\hearthstone.exe'
+	):
+		logging.debug('Hearthstone installation found from environment variable')
+		return environmentDirectory
+	else:
+		logging.warning('Unable to locate the Hearthstone installation folder.')
+		return promptForHearthstoneDirectory()
 
 
-def get_hearthstone_dir_from_user():
-    hearthstone_dir = get_hearthstone_dir_from_environment()
+def promptForHearthstoneDirectory():
+	while True:
+		logging.debug('Prompting user for Hearthstone installation directory')
+		hearthstoneDirectory = input('Please enter the path where you have Hearthstone installed: ')
+		logging.debug(f"User input: '{hearthstoneDirectory}'")
 
-    while not os.path.exists(hearthstone_dir):
-        print("The patcher couldn't find your Hearthstone installation folder.")
-        hearthstone_dir = input(
-            "Please copy/paste or enter the path where you have the game installed and press enter:")
-
-    process = subprocess.run(
-        f"powershell.exe [System.Environment]::SetEnvironmentVariable('HEARTHSTONE_HOME', '{hearthstone_dir}', 'User')",
-        capture_output=True)
-
-    return hearthstone_dir
-
-
-# Reference:
-# https://stackoverflow.com/questions/38511444/python-download-files-from-google-drive-using-url
-def download_file(id, destination):
-    URL = "https://hearthstoneaccess.com/files/pre_patch.zip"
-
-    session = requests.Session()
-
-    response = session.get(URL, params={'id': id}, stream=True)
-    token = get_confirm_token(response)
-
-    if token:
-        params = {'id': id, 'confirm': token}
-        response = session.get(URL, params=params, stream=True)
-
-    save_response_content(response, destination)
+		if os.path.exists(f'{hearthstoneDirectory}\\hearthstone.exe'):
+			logging.debug(f"Hearthstone installation directory located at '{hearthstoneDirectory}'")
+			try:
+				subprocess.run(
+					f"powershell.exe [System.Environment]::SetEnvironmentVariable('HEARTHSTONE_HOME', '{hearthstoneDirectory}', 'User')",
+					capture_output=True,
+					check=True,
+				)
+			except subprocess.CalledProcessError as e:
+				logging.error(f'Could not set HEARTHSTONE_HOME environment variable:\n{e}')
+				print(
+					'There was an error setting the environment variable with the installation path. Check the log file for details.'
+				)
+			logging.debug('Environment variable set')
+			return hearthstoneDirectory
+		else:
+			logging.debug(f"Invalid path: '{hearthstoneDirectory}'")
+			print('That is not a valid Hearthstone installation directory.')
 
 
-def get_confirm_token(response):
-    for key, value in response.cookies.items():
-        if key.startswith('download_warning'):
-            return value
+def downloadPatch(hearthstoneDirectory):
+	logging.debug(f'Downloading patch')
+	print('Downloading patch, please wait...')
 
-    return None
+	downloadedPatchFile = os.path.join(hearthstoneDirectory, PATCH_FILE)
 
+	logging.debug(f"Patch will be downloaded to '{downloadedPatchFile}'")
 
-def save_response_content(response, destination):
-    CHUNK_SIZE = 32768
+	try:
+		response = requests.get(PATCH_URL, stream=True)
 
-    with open(destination, "wb") as f:
-        for chunk in response.iter_content(CHUNK_SIZE):
-            if chunk:  # filter out keep-alive new chunks
-                f.write(chunk)
+		if response.status_code == 200:
+			with open(downloadedPatchFile, 'wb') as f:
+				for chunk in response.iter_content(chunk_size=8192):
+					f.write(chunk)
+		else:
+			logging.critical(f'Failed to download the patch: status code {response.status_code}')
+			exit(1)
+	except requests.exceptions.HTTPError as e:
+		logging.critical(f'HTTP error occurred:\n{e}')
+		exit(1)
+	except requests.exceptions.ConnectionError as e:
+		logging.critical(f'\nConnection error occurred:\n{e}')
+		exit(1)
+	except requests.exceptions.Timeout as e:
+		logging.critical(f'\nTimeout error occurred:\n{e}')
+		exit(1)
+	except requests.exceptions.RequestException as e:
+		logging.critical(f'An error occurred during the request:\n{e}')
+		exit(1)
+	except IOError as e:
+		logging.CRITICAL(f'\nFile writing error occurred:\n{e}')
+		exit(1)
 
-
-def unzip_patch(hearthstone_dir):
-    with zipfile.ZipFile(os.path.join(hearthstone_dir, 'temp.zip'), 'r') as zipped_patch:
-        zipped_patch.extractall(hearthstone_dir)
-
-
-# Reference:
-# https://stackoverflow.com/questions/7419665/python-move-and-overwrite-files-and-folders
-def patch(hearthstone_dir):
-    source = os.path.join(hearthstone_dir, 'patch')
-    destination = hearthstone_dir
-
-    for src_dir, dirs, files in os.walk(source):
-        dst_dir = src_dir.replace(source, destination, 1)
-        if not os.path.exists(dst_dir):
-            os.makedirs(dst_dir)
-        for file_ in files:
-            src_file = os.path.join(src_dir, file_)
-            dst_file = os.path.join(dst_dir, file_)
-            if os.path.exists(dst_file):
-                # in case of the src and dst are the same file
-                if os.path.samefile(src_file, dst_file):
-                    continue
-                os.remove(dst_file)
-            shutil.move(src_file, dst_dir)
+	logging.debug('Download complete')
 
 
-def cleanup(hearthstone_dir):
-    os.remove(hearthstone_dir + '\\temp.zip')
-    shutil.rmtree(hearthstone_dir + '\\patch')
+def unzip(hearthstoneDirectory):
+	logging.debug('Unzipping patch')
+
+	patchZipFile = os.path.join(hearthstoneDirectory, PATCH_FILE)
+
+	logging.debug(f"Patch will be unzipped to '{patchZipFile}'")
+
+	try:
+		with zipfile.ZipFile(patchZipFile, 'r') as z:
+			z.extractall(hearthstoneDirectory)
+	except zipfile.BadZipFile:
+		logging.critical('Failed to unzip the patch: The file is not a zip file or it is corrupted.')
+		exit(1)
+	except FileNotFoundError:
+		logging.critical('Failed to unzip the patch: The zip file does not exist')
+		exit(1)
+	except PermissionError:
+		logging.critical('\nFailed to unzip the patch: Insufficient permissions')
+		exit(1)
+
+	logging.debug('Patch unzipped')
 
 
-def move_patch_readme(hearthstone_dir):
-    print("Do you want the readme with all the latest changes placed on your desktop?")
-    want_readme = input(
-        "Type y for yes, or any other character and press enter.")
+def applyPatch(hearthstoneDirectory):
+	logging.debug('Applying patch')
 
-    if not want_readme == "y":
-        print("Okay, skipping readme.")
-        os.remove(hearthstone_dir + '\\prepatch_readme.txt')
-        return
+	patchDirectory = os.path.join(hearthstoneDirectory, PATCH_FILE_NAME)
 
-    patch_readme_path = os.path.expanduser('~') + '\\Desktop'
-    patch_readme_name = '\\prepatch_readme.txt'
-    patch_readme_file = patch_readme_path + patch_readme_name
+	try:
+		for item in os.listdir(patchDirectory):
+			sourceItem = os.path.join(patchDirectory, item)
+			destinationItem = os.path.join(hearthstoneDirectory, item)
 
-    if os.path.exists(patch_readme_file):
-        os.remove(patch_readme_file)
+			logging.debug(f"Copying '{sourceItem}' to '{destinationItem}'")
 
-    shutil.move(hearthstone_dir + patch_readme_name, patch_readme_file)
+			if os.path.isdir(sourceItem):
+				shutil.copytree(sourceItem, destinationItem, dirs_exist_ok=True)
+			else:
+				shutil.copy2(sourceItem, destinationItem)
+	except FileNotFoundError:
+		logging.critical('Failed to apply the patch: Source or destination directory does not exist')
+		exit(1)
+	except PermissionError:
+		logging.critical('Failed to apply the patch: Insufficient permissions to read or write files')
+		exit(1)
+	except IOError as e:
+		logging.critical(f'\nIO error occurred while copying files:\n{e}')
+		exit(1)
 
-    print("Check your desktop for the patch's readme.")
-    print("It is called prepatch_readme.txt")
+	logging.debug('Successfully patched')
+	print('Success!')
 
 
-def exit_patcher():
-    print("Press enter to exit...")
-    input()
-    sys.exit()
+def moveREADMEToDesktop(hearthstoneDirectory):
+	patchREADMEFile = f'{hearthstoneDirectory}\\{PATCH_README_FILE}'
+	desktopREADMEFile = os.path.join(DESKTOP_PATH, PATCH_README_FILE)
+
+	logging.debug('Prompting user for README')
+	userWantsREADME = input('Do you want to place the README on your desktop? (y/n): ').strip().lower()
+	logging.debug(f"User input for README: '{userWantsREADME}'")
+
+	if userWantsREADME == 'y':
+		try:
+			shutil.copy2(patchREADMEFile, desktopREADMEFile)
+		except FileNotFoundError:
+			logging.error('Failed to move the README: The source file does not exist')
+		except PermissionError:
+			logging.error('Failed to move the README: Insufficient permissions to read or write the file')
+	else:
+		print('Okay, skipping README')
+		return
+
+	logging.debug(f"Copying '{patchREADMEFile}' to '{desktopREADMEFile}'")
+	print('The README has been placed on your desktop')
+	print(f"It is called '{PATCH_README_FILE}'")
 
 
-if __name__ == "__main__":
-    ctypes.windll.kernel32.SetConsoleTitleW("HearthstoneAccess Beta Patcher")
+def cleanUp(hearthstoneDirectory):
+	logging.debug('Removing temporary patch files')
 
-    hearthstone_dir = determine_patch_destination()
+	try:
+		shutil.rmtree(f'{hearthstoneDirectory}\\{PATCH_FILE_NAME}')
+		os.remove(f'{hearthstoneDirectory}\\{PATCH_FILE_NAME}{PATCH_FILE_EXTENSION}')
+		os.remove(f'{hearthstoneDirectory}\\{PATCH_README_FILE}')
+	except FileNotFoundError:
+		logging.error('Failed to clean up: One or more files did not exist')
+	except PermissionError:
+		logging.error('Failed to clean up: Insufficient permissions to delete files or directories')
+	except OSError as e:
+		logging.error(f'Error during cleanup:\n{e}')
 
-    print("Downloading patch, please wait...")
-    print("The HearthstoneAccess site takes a little while to serve downloads. Be patient.")
-    try:
-        file_id = '1L6K6tVsXpFtPxUSgLTpxtNXVfN24Ym4l'
-        destination = hearthstone_dir + '\\temp.zip'
-        download_file(file_id, destination)
-    except BaseException:
-        print("Patch Download Error: could not download patch.")
-        print("Here are some potential causes:")
-        print("1. There may be something in your network that is interfering with the download.")
-        print("2. The HearthstoneAccess site could currently be down.")
-        exit_patcher()
+	logging.debug('Temporary files removed')
 
-    print("Patching Hearthstone, please wait...")
-    try:
-        unzip_patch(hearthstone_dir)
-        patch(hearthstone_dir)
-        print("Successfully patched!")
-    except BaseException:
-        print("Unzip Patch Error: Could not patch your game.")
-        print("Here are some potential causes:")
-        print(
-            "1. Make sure Hearthstone is not running while attempting to use the patcher.")
-        print("2. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
-        print("3. Unlikely, but you may not have enough space on your disk drive.")
-        exit_patcher()
 
-    try:
-        cleanup(hearthstone_dir)
-    except BaseException:
-        print("Cleanup Patch Error: Could not remove leftover patch files.")
-        print("Here are some potential causes:")
-        print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
-        print("2. Unlikely, but another program could be trying to modify the Hearthstone installation folder.")
-        exit_patcher()
+def exit(exitCode):
+	if exitCode == 0:
+		logging.debug('Prompting user to exit')
+		input('Press enter to exit...')
+		logging.debug('Patcher exiting')
+		sys.exit(0)
+	else:
+		print('An error has occurred while patching')
+		print('If you have Hearthstone open, please close it and re-run the patcher.')
+		print(
+			'Please send the log file to the autopatcher-bugs channel of the HearthstoneAccess Discord server if you are still having issues.'
+		)
+		print(f"It is located at '{LOG_FILE}'.")
+		sys.exit(exitCode)
 
-    try:
-        move_patch_readme(hearthstone_dir)
-    except BaseException:
-        print(
-            "Make Readme Available Error: Could not move the patch readme to your desktop.")
-        print("Here are some potential causes:")
-        print("1. The patcher may not have privileges to modify files in the Hearthstone installation folder. Perhaps run it as an administrator.")
-        print("2. Unlikely, but another program could be trying to modify the Hearthstone installation folder.")
-        print("It should still be available in the Hearthstone installation directory.")
 
-    exit_patcher()
+def initializeLogging():
+	logging.getLogger().setLevel(logging.DEBUG)
+
+	fileHandler = logging.FileHandler(LOG_FILE)
+	fileHandler.setLevel(logging.DEBUG)
+	fileFormatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d_%H-%M-%S')
+	logging.getLogger().addHandler(fileHandler)
+	fileHandler.setFormatter(fileFormatter)
+
+
+def main():
+	initializeLogging()
+	hearthstoneDirectory = getHearthstoneDirectory()
+	print(f'Patch will be installed to {hearthstoneDirectory}')
+	downloadPatch(hearthstoneDirectory)
+	unzip(hearthstoneDirectory)
+	applyPatch(hearthstoneDirectory)
+	moveREADMEToDesktop(hearthstoneDirectory)
+	cleanUp(hearthstoneDirectory)
+	exit(0)
+
+
+if __name__ == '__main__':
+	os.system('title HearthstoneAccess Patcher')
+
+	try:
+		main()
+	except Exception as e:
+		logging.critical(f'There was a critical error:\n{e}')

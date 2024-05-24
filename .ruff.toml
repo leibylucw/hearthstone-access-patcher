@@ -11,6 +11,8 @@ quote-style = "single"
 
 [lint]
 select = [
+	"I001", # Import block is un-sorted or un-formatted
+	"I002", # Missing required import: {name}
 	"W505", # pycodestyle -> Warning -> "Doc line too long"
 ]
 
