@@ -1,13 +1,12 @@
 # HearthstoneAccess Patcher
-A script that automates patching Hearthstone using the [HearthstoneAccess Community Patch](https://www.hearthstoneaccess.com/)
+An application that automates patching Hearthstone using the [HearthstoneAccess Community Patch](https://www.hearthstoneaccess.com/)
 
 ## Overview
-This script (referred to as the patcher) performs the following tasks:
+This app (referred to as the patcher) performs the following tasks:
 * Downloads the zipped archive of the HearthstoneAccess Community Patch
 * Unzips the archive
 * Places the contents in your Hearthstone installation directory
 * Prompts if you want the changelog put on your desktop
-* Removes leftover/temporary files and directories
 
 There are two general target audiences: those who wish to simply use the patcher, and those who wish to develop/build the patcher.
 
@@ -19,7 +18,7 @@ To use the patcher, download the latest executable from the [latest release page
 Make sure you have the following dependencies installed and available on your system:
 * [Git](https://git-scm.com/): any recent version
 * [GitHub CLI](https://cli.github.com/) (optional): any recent version
-* [CPython](https://www.python.org/): version 3.11 or higher is supported
+* .NET 8 sdk, either from [dotnet.microsoft.com](https://dotnet.microsoft.com/en-us/download) or install using visual studio.
 
 ### Clone the Repo
 With Git:
@@ -36,70 +35,13 @@ gh repo clone leibylucw/hearthstone-access-patcher
 cd hearthstone-access-patcher
 ```
 
-### Create a Virtual Environment (virtualenv)
-A virtual environment (virtualenv) must be used when using, developing, or building the project. All subsequent sections assume that you have created the virtualenv and have activated it. To create it, run the following command:
+### Common Development Tasks:
 
-```shell
-python -m venv .venv
-```
+- **Running the Program:**
+  To quickly run your program during development, type `dotnet run` in the terminal. This command compiles and runs the program in **debug mode**, meaning it prioritizes fast compilation times without any optimization. It's useful for testing and debugging but not ideal for final performance tests or releases.
 
-### Activate the Virtualenv
-For Command Prompt on Windows:
+- **Building the Program:**
+  If you want to compile the program without running it, use `dotnet build`. By default, this also builds in **debug mode**, where the focus is on fast feedback and ease of debugging. Optimizations are turned off, so the build is quick, but not the most efficient. Use this primarily during development when you need to verify that the program compiles correctly.
 
-```cmd
-.\.venv\Scripts\activate.bat
-```
-
-For PowerShell on Windows:
-
-```powershell
-.\.venv\Scripts\activate.ps1
-```
-
-For Linux/MacOS:
-
-```sh
-./.venv/Scripts/activate
-```
-
-To deactivate the virtualenv on all platforms:
-
-```shell
-deactivate
-```
-
-### Install Project Requirements
-The patcher requires certain dependencies to be installed. To install them, run the following commands with the virtualenv activated:
-
-```shell
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### Install the pre-commit Hooks
-See the dev notes section for more info about pre-commit hooks. For now, all you need to do is install them using the following command:
-
-```shell
-pre-commit install
-```
-
-### Running the Patcher
-Finally, run the patcher with Python:
-
-```shell
-python hearthstoneAccessPatcher.py
-```
-
-### General Development Notes
-You will notice from the various configuration files in the repo that there are several tools to ensure certain code hygiene and quality conventions are enforced. You may wish to become familiar with these tools and the coding style configurations therein. For more info, please refer to:
-* [Ruff](https://github.com/astral-sh/ruff): used for code linting and formatting
-* [pre-commit](https://github.com/pre-commit/pre-commit): used for managing pre-commit hooks
-
-## Building the Patcher
-The patcher uses Pyinstaller to create a Windows executable. It was installed as part of the requirements in the development instructions. To build a Windows binary (`.exe`), run the following command:
-
-```
-pyinstaller --onefile hearthstoneAccessPatcher.py
-```
-
-Check the `dist` directory for the resulting executable.
+- **Publishing the Program:**
+  For a version of the program that’s ready to distribute or deploy, use `dotnet publish`. This builds the program in **release mode**, enabling optimizations that improve performance and reduce the final file size. The output is typically placed in a folder like `bin\Release\net8.0-windows\win-x86\publish`. The exact path might vary based on your runtime and platform, but it will always follow a similar structure.
