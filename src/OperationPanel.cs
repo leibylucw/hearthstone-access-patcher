@@ -74,7 +74,7 @@ public class OperationPanel : FlowLayoutPanel
             if (label.Text != value)
             {
                 label.Text = value;
-                label.AccessibilityObject.RaiseAutomationNotification(AutomationNotificationKind.Other, AutomationNotificationProcessing.ImportantMostRecent, value);
+                label.AccessibilityObject.RaiseAutomationNotification(AutomationNotificationKind.Other, AutomationNotificationProcessing.All, value);
                 AddHistoryItem(value);
             }
         }
