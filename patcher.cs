@@ -42,23 +42,25 @@ static class Patcher
         return null;
     }
 
-
-
     static public void UnpackAndPatch(Stream downloaded, string directory)
     {
         using ZipArchive archive = new ZipArchive(downloaded, ZipArchiveMode.Read, false);
         foreach (ZipArchiveEntry entry in archive.Entries)
         {
             string entryPath = entry.FullName;
-            if (String.IsNullOrWhiteSpace(entryPath) ||entryPath.EndsWith('/') || !entryPath.StartsWith(PATCH_DIR, StringComparison.OrdinalIgnoreCase)) continue;
+            if (String.IsNullOrWhiteSpace(entryPath) || entryPath.EndsWith('/') || !entryPath.StartsWith(PATCH_DIR, StringComparison.OrdinalIgnoreCase)) continue;
             entryPath = entry.FullName.Substring(PATCH_DIR.Length);
             entryPath = Path.Join(entryPath.Split('/'));
             entryPath = Path.Join(directory, entryPath);
             string? entryDirectory = Path.GetDirectoryName(entryPath)!;
             Directory.CreateDirectory(entryDirectory);
-            using FileStream fileStream = File.Create(entryPath);
-            using Stream entryStream = entry.Open();
-            entryStream.CopyTo(fileStream);
+            using (FileStream fileStream = new(entryPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                using (Stream entryStream = entry.Open())
+                {
+                    entryStream.CopyTo(fileStream);
+                }
+            }
         }
     }
 }

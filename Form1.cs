@@ -18,17 +18,14 @@ public class MainForm : Form
 
     private void InitializeComponent()
     {
-        // Initialize controls
         cmbChannels = new ComboBox();
         btnStart = new Button();
         mainPanel = new FlowLayoutPanel();
 
-        // Set properties for MainForm
         this.Text = "HSAPatcher";
         this.Size = new System.Drawing.Size(600, 400);
         this.StartPosition = FormStartPosition.CenterScreen;
 
-        // Configure FlowLayoutPanel
         mainPanel.Dock = DockStyle.Fill;
         mainPanel.FlowDirection = FlowDirection.TopDown;
         mainPanel.Padding = new Padding(10);

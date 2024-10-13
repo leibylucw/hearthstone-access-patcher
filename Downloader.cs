@@ -9,11 +9,10 @@ public class Downloader
 {
     private const int bufferSize = 65536;
     public event EventHandler<int>? ProgressChanged;
-    public int Progress {get; private set;}
+    public int Progress { get; private set; }
     private int lastPercent;
     private readonly string url;
     private long downloaded;
-    private long lastDownloaded;
     private long length;
 
     public Downloader(string url)
@@ -53,36 +52,10 @@ public class Downloader
             }
             Progress = percent;
             ProgressChanged?.Invoke(this, Progress);
-            // Console.WriteLine($"{percent}%; {GetAppropriateStorageUnit(downloaded)} / {GetAppropriateStorageUnit(length)}");
             lastPercent = percent;
         }
-        else
-        {
-            if (downloaded - lastDownloaded > 65536)
-            {
-                // Console.WriteLine($"{GetAppropriateStorageUnit(downloaded)}");
-                lastDownloaded = downloaded;
-            }
-
-        }
-
     }
 
-    private string GetAppropriateStorageUnit(long bytes)
-    {
-        if (bytes < 1024)
-        {
-            return $"{bytes}B";
-        }
-        else if (bytes < 1048576)
-        {
-            return $"{Math.Round((double)bytes / 1024, 2)} KB";
-        }
-        else
-        {
-            return $"{Math.Round((double)bytes / 1024 / 1024, 2)} MB";
-        }
-    }
 
 
 
