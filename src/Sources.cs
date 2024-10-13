@@ -1,5 +1,5 @@
 using System;
-namespace HSAPatcher;
+namespace HearthstoneAccessPatcher;
 public struct Source
 {
     public readonly string name;

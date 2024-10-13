@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-namespace HSAPatcher;
+namespace HearthstoneAccessPatcher;
 public class MainForm : Form
 {
     private TextBox directoryBox = null!;
@@ -22,7 +22,7 @@ public class MainForm : Form
         btnStart = new Button();
         mainPanel = new FlowLayoutPanel();
 
-        this.Text = "HSAPatcher";
+        this.Text = "HearthstoneAccessPatcher";
         this.Size = new System.Drawing.Size(600, 400);
         this.StartPosition = FormStartPosition.CenterScreen;
 
